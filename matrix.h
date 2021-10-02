@@ -15,6 +15,7 @@ class Matrix
     vector< vector<T> > data;
 public:
     Matrix(vector< vector<T> >);
+    Matrix(vector< vector<T> >, int i, int j);
     Matrix(int n_);
     Matrix(int n_, int m_);
     int rows() const { return n; };
@@ -24,6 +25,7 @@ public:
     const Matrix operator^(int) const;
     const Matrix operator*(T) const;
     const Matrix transparent();
+    T determinant();
     vector<T>& operator[](int i) { return data[i]; };
     const vector<T>& operator[](int i) const { return data[i]; };
     template<typename Type> friend istream& operator>>(istream&, Matrix<Type>&);
@@ -36,6 +38,30 @@ Matrix<T>::Matrix(vector< vector<T> > vect)
     data = vect;
     n = vect.size();
     m = vect[0].size();
+}
+
+template<typename T>
+Matrix<T>::Matrix(vector< vector<T> > vect, int x, int y)
+{
+    data = vector< vector<T> >(vect.size()-1);
+    for (int i = 0; i < vect.size(); ++i) {
+        if(i < x)
+        {
+            for (int j = 0; j < vect[0].size(); ++j) {
+                if(j != y)
+                data[i].push_back(vect[i][j]);
+            }
+        }
+        else if(i > x)
+        {
+            for (int j = 0; j < vect[0].size(); ++j) {
+                if(j != y)
+                data[i-1].push_back(vect[i][j]);
+            }
+        }
+    }
+    n = data.size();
+    m = data.size();
 }
 
 template<typename T>
@@ -123,6 +149,23 @@ const Matrix<T> Matrix<T>::transparent()
         for (int j = 0; j < n; ++j)
             res[i].push_back(data[j][i]);
     return Matrix(res);
+}
+
+template<typename T>
+T Matrix<T>::determinant()
+{
+    if (n != m)
+        throw "Matrix hasn't match sizes";
+    T a = 0;
+    if(n > 1) {
+        for (int j = 1; j <= n; ++j) {
+            Matrix<T> M = Matrix(data, 0, j - 1);
+            a += pow(-1, j + 1) * data[0][j - 1] * M.determinant();
+        }
+    }
+    else
+        a = data[0][0];
+    return a;
 }
 
 template<typename T>
