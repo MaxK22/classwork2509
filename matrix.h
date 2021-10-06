@@ -14,17 +14,22 @@ class Matrix
     int m;
     vector< vector<T> > data;
 public:
+    vector< vector<double> > inverse;
     Matrix(vector< vector<T> >);
+    Matrix(vector< vector<T> >, int j);
     Matrix(vector< vector<T> >, int i, int j);
     Matrix(int n_);
     Matrix(int n_, int m_);
     int rows() const { return n; };
     int columns() const { return m; };
+    vector< vector<T> > Data() const { return data; };
     const Matrix operator+(const Matrix&) const;
     const Matrix operator*(const Matrix&) const;
     const Matrix operator^(int) const;
     const Matrix operator*(T) const;
+    vector<double> dline(vector<double>, vector<double>, double);
     const Matrix transparent();
+    const Matrix<double> Gause();
     T determinant();
     vector<T>& operator[](int i) { return data[i]; };
     const vector<T>& operator[](int i) const { return data[i]; };
@@ -38,6 +43,18 @@ Matrix<T>::Matrix(vector< vector<T> > vect)
     data = vect;
     n = vect.size();
     m = vect[0].size();
+}
+
+template<typename T>
+Matrix<T>::Matrix(vector< vector<T> > vect, int j)
+{
+    data = vector<T>(vect.size());
+    for(int i = 0; i < vect.size(); ++i)
+    {
+        data[i].push_back(vect[i][j]);
+    }
+    n = vect.size();
+    m = 1;
 }
 
 template<typename T>
@@ -82,6 +99,17 @@ Matrix<T>::Matrix(int n_, int m_)
     vector<T> x;
     x.assign(m, 0);
     data.assign(n, x);
+}
+
+template<typename T>
+vector<double> Matrix<T>::dline(vector<double> a, vector<double> b, double k)
+{
+    if (a.size() != b.size())
+        throw "Lines have different sizes";
+    vector<double> res;
+    for(int i = 0; i < a.size(); ++i)
+        res.push_back(a[i] - b[i] * k);
+    return res;
 }
 
 template<typename T>
@@ -155,7 +183,7 @@ template<typename T>
 T Matrix<T>::determinant()
 {
     if (n != m)
-        throw "Matrix hasn't match sizes";
+        throw "Matrix hasn't match size";
     T a = 0;
     if(n > 1) {
         for (int j = 1; j <= n; ++j) {
@@ -172,10 +200,43 @@ template<typename T>
 const Matrix<T> Matrix<T>::operator^(int k) const
 {
     if (n != m)
-        throw "Matrix hasn't match sizes";
+        throw "Matrix hasn't match size";
     vector< vector<T> > res = data;
     for(int i = 1; i < k; ++i)
         res = res * data;
     return Matrix(res);
+}
+
+template<typename T>
+const Matrix<double> Matrix<T>::Gause()
+{
+    if (n > m)
+        throw "Matrix hasn't match size";
+    vector<double> x;
+    x.assign(m, 0);
+    inverse.assign(n, x);
+    for (int i = 0; i < n; ++i)
+        inverse[i][i] = 1;
+    vector< vector<double> > res(n);
+    res = data;
+    for (int j = 0; j < n - 1; ++j) {
+        if (res[j][j] == 0) {
+            for (int k = j + 1; k < n; ++k) {
+                if (res[k][j] != 0) {
+                    res[j] = dline(res[j], res[k], -1);
+                    inverse[j] = dline(inverse[j], inverse[k], -1);
+                    k = n;
+                }
+            }
+        }
+        for (int k = j + 1; k < n && res[j][j] != 0; ++k) {
+            if (res[k][j] != 0) {
+                double p = res[k][j] / res[j][j];
+                res[k] = dline(res[k], res[j], p);
+                inverse[j] = dline(inverse[k], inverse[j], p);
+            }
+        }
+    }
+    return Matrix<double>(res);
 }
 #endif //UNTITLED_MATRIX_H

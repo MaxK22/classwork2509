@@ -3,9 +3,9 @@
 #include "matrix.h"
 using namespace std;
 
-vector<vector<int> > RandomMatrix(int n, int m)
+vector<vector<double> > RandomMatrix(int n, int m)
 {
-    vector< vector<int> > res(n);
+    vector< vector<double> > res(n);
     for (int i = 0; i < n; ++i)
         for (int j = 0; j < m; ++j)
             res[i].push_back(rand()%100);
@@ -13,13 +13,14 @@ vector<vector<int> > RandomMatrix(int n, int m)
 }
 
 int main() {
-    Matrix<int> a(RandomMatrix(4, 4));
-    Matrix<int> b(RandomMatrix(4, 4));
+    Matrix<double> a(RandomMatrix(4, 4));
+    //Matrix<int> b(RandomMatrix(4, 4));
     cout << a << endl;
     try
     {
         //cout << "" << (a*b) << endl;
-        cout << a.determinant();
+        cout << "Gause: \n" << (a.Gause()) << endl;
+        //cout << "x = A-1 * b = : \n" << (Matrix<double>(a.inverse) * (Matrix<double>(a.Data(), a.columns()-1)));
     }
     catch (const char* msg)
     {
