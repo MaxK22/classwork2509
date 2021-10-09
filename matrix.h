@@ -16,13 +16,13 @@ class Matrix
 public:
     vector< vector<double> > inverse;
     Matrix(vector< vector<T> >);
-    Matrix(vector< vector<T> >, int j);
+    Matrix(vector< vector<double> >, int j);
     Matrix(vector< vector<T> >, int i, int j);
     Matrix(int n_);
     Matrix(int n_, int m_);
     int rows() const { return n; };
     int columns() const { return m; };
-    vector< vector<T> > Data() const { return data; };
+    vector< vector<T> > Data() { return data; };
     const Matrix operator+(const Matrix&) const;
     const Matrix operator*(const Matrix&) const;
     const Matrix operator^(int) const;
@@ -46,12 +46,13 @@ Matrix<T>::Matrix(vector< vector<T> > vect)
 }
 
 template<typename T>
-Matrix<T>::Matrix(vector< vector<T> > vect, int j)
+Matrix<T>::Matrix(vector< vector<double> > vect, int j)
 {
-    data = vector<T>(vect.size());
+    data = vect;
     for(int i = 0; i < vect.size(); ++i)
     {
-        data[i].push_back(vect[i][j]);
+        data[i].resize(1);
+        data[i][0] = vect[i][j];
     }
     n = vect.size();
     m = 1;
