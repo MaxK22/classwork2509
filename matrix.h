@@ -221,13 +221,10 @@ const Matrix<double> Matrix<T>::Gause()
     vector< vector<double> > res(n);
     res = data;
     for (int j = 0; j < n - 1; ++j) {
-        if (res[j][j] == 0) {
-            for (int k = j + 1; k < n; ++k) {
-                if (res[k][j] != 0) {
-                    res[j] = dline(res[j], res[k], -1);
-                    inverse[j] = dline(inverse[j], inverse[k], -1);
-                    k = n;
-                }
+        for (int k = j + 1; k < n && res[k][j] != 0; ++k) {
+            if (res[k][j] != 0) {
+                res[j] = dline(res[j], res[k], -1);
+                inverse[j] = dline(inverse[j], inverse[k], -1);
             }
         }
         for (int k = j + 1; k < n && res[j][j] != 0; ++k) {

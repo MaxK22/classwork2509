@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include "algorithm"
 #include "vector"
 #include "matrix.h"
 using namespace std;
@@ -12,21 +14,70 @@ vector<vector<double> > RandomMatrix(int n, int m)
     return res;
 }
 
+vector<double> dline(vector<double> a, vector<double> b, double k)
+{
+    vector<double> res;
+    for(int i = 0; i < a.size(); ++i)
+        res.push_back(a[i] - b[i] * k);
+    return res;
+}
+
+string MetodGause(Matrix<double> a)
+{
+    int n = a.rows(), m = a.columns();
+    vector< vector<double> > res(n);
+    res = a.Data();
+    for (int j = 0; j < min(n,m - 1); ++j) {
+        for (int k = j + 1; k < n && res[j][j] == 0; ++k)
+            if(res[k][j] != 0) res[j] = dline(res[j], res[k], -1);
+        for (int k = j + 1; k < n && res[j][j] != 0; ++k) {
+            if (res[k][j] != 0) {
+                double p = res[k][j] / res[j][j];
+                res[k] = dline(res[k], res[j], p);
+            }
+        }
+    }
+    string answer;
+    for(int i = n - 1; i >= 0; --i)
+    {
+        if(i > m - 1 && res[i][m-1] != 0)
+        {
+            answer = "System is inconsisten";
+            i = -1;
+        }
+        else if(i == m-1)
+        {
+            answer = res[i][m-1];
+        }
+    }
+
+
+    return answer;
+}
+
 int main() {
-    Matrix<double> a(RandomMatrix(4, 4));
-    //Matrix<int> b(RandomMatrix(4, 4));
-    cout << "A: \n" << a << endl;
-    try
+    ifstream input;
+    input.open("input.txt");
+    int s;
+    input >> s;
+    for(int i = 0; i < s; ++i)
     {
-        Matrix<double> x1(a.Data(), (a.columns()-1));
-        //cout << "" << (a*b) << endl;
-        cout << "Gause: \n" << (a.Gause()) << endl;
-        Matrix<double> x2(a.inverse);
-        cout << "x = A-1 * b = \n" << (x2 * x1);
+        int n, m;
+        input >> n >> m;
+        vector<vector<double>> vect(n);
+        double x;
+        m++;
+        for(int j = 0; j < n; ++j)
+        {
+            for(int k = 0; k < m; ++k)
+            {
+                input >> x;
+                vect[j].push_back(x);
+            }
+        }
+        Matrix<double> a(vect);
+        cout << "Case #" << i + 1 << ":\n" << MetodGause(a) << endl;
     }
-    catch (const char* msg)
-    {
-        cerr << "Exception caught: " << msg << endl;
-    }
+    input.close();
     return 0;
 }
